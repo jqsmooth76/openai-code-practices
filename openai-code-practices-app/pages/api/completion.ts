@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       model: 'gpt-3.5-turbo',
       messages: [
         { "role": "system", "content": "You are an expert software developer giving best practices advice to developers" },
-        { "role": "user", "content": "Hello!" }
+        { "role": "user", "content": "Hello, what is a react component?" }
       ]
     })
 
