@@ -13,6 +13,7 @@ const openai = new OpenAIApi(configuration);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // const response = await openai.listEngines()
+  console.log(req.body)
 
   try {
     const completion = await openai.createChatCompletion({
