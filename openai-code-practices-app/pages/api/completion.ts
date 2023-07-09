@@ -12,22 +12,21 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // const response = await openai.listEngines()
-  console.log(req.body)
+  const { input } = req.body
 
   try {
     const completion = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
         { "role": "system", "content": "You are an expert software developer giving best practices advice to developers" },
-        { "role": "user", "content": "Hello, what is a react component?" }
+        { "role": "user", "content": `${input}` }
       ]
     })
-
-    res.status(200).json({ data: completion.data })
+    const content = completion.data.choices[0].message?.content
+    res.status(200).json({ data: content })
 
   } catch (err) {
     console.log('Error creating chat', err)
     res.status(500).json({ error: 'Error creating chat 🤦‍♂️😅, try again later' })
   }
-}
+} 
