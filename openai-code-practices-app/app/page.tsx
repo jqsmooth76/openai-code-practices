@@ -2,7 +2,7 @@
 import { useState, ChangeEvent } from 'react'
 import { css } from '../styled-system/css';
 import { useMutation } from 'react-query'
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 
 export default function Home() {
