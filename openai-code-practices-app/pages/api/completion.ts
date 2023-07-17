@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       messages: [
         { "role": "system", "content": "You are an expert software developer giving best practices advice to developers" },
         { "role": "user", "content": `Use the information in the practices delimited by <> to answer any further questions: <${practices}>` },
-        { "role": "user", "content": `How could this component be improved, return the answer in markdown and list the references to the practices used in the answer at the end: ${input}` }
+        { "role": "user", "content": `How could this component be improved, return the answer in markdown and list the references to the practices used in the answer at the end, include a code example: ${input}` }
       ]
     })
     const content = completion.data.choices[0].message?.content

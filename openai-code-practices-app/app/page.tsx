@@ -1,8 +1,13 @@
 'use client'
-import { useState, ChangeEvent } from 'react'
-import { css } from '../styled-system/css';
-import { useMutation } from 'react-query'
 import axios from 'axios';
+import { useState, ChangeEvent } from 'react'
+import { useMutation } from 'react-query'
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+
+import { css } from '../styled-system/css';
 
 
 export default function Home() {
@@ -14,6 +19,16 @@ export default function Home() {
     e.preventDefault();
     mutation.mutate(input as any);
   };
+
+  const renderers = {
+    code: ({ language, value }: any) => {
+      console.log('language: ', language)
+      if (language === 'jsx') {
+        return <SyntaxHighlighter style={solarizedlight} language={language}>{value}</SyntaxHighlighter>
+      }
+      return <code>{value}</code>
+    }
+  }
 
   return (
     <div className={css({
@@ -59,16 +74,11 @@ export default function Home() {
         </div>
       )}
       {mutation.isSuccess && (
-        <div className={css({
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          backgroundColor: 'gray.200'
-        })}>
+
+        <ReactMarkdown components={renderers}>
           {mutation.data.data.data}
-        </div>
+        </ReactMarkdown>
+
       )}
     </div>
 
