@@ -15,7 +15,6 @@ export default function Home() {
   const [input, setInput] = useState<string>('');
 
   const mutation = useMutation((input) => axios.post('/api/completion', { input }));
-  console.log('mutation', mutation?.data?.data)
 
   const handleSubmit = (e) => {
     e.preventDefault();
