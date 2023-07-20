@@ -1,12 +1,15 @@
 'use client'
 import React, { useState, useEffect, ChangeEvent } from 'react'
-import ReactMarkdown from 'react-markdown'; import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+
 import { useTextBuffer } from "nextjs-openai";
 
 
 import { css } from '../styled-system/css';
 import { Container, VStack } from '../styled-system/jsx'
+
 
 
 export default function Home() {
@@ -27,7 +30,7 @@ export default function Home() {
 
   const text = buffer.join("")
   const empty = buffer.length === 0 || text.trim() === ""
-
+  const loading = buffer.length > 0 && !done && !error
 
   useEffect(() => {
     if (buffer.length > 0) {
@@ -38,14 +41,28 @@ export default function Home() {
 
 
   const handleSubmit = () => {
-    setCodeSnippet("")
-    setInput({ input: '' })
     setInput({ input: codeSnippet })
     refresh()
   };
 
   const renderers = {
-    code: ({ node, ...props }: any) => <SyntaxHighlighter style={solarizedlight} language='js' {...props} />
+    code: ({ node, inline, className = "blog-code", children, ...props }: any) => {
+      const match = /language-(\w+)/.exec(className || '')
+      return !inline && match ? (
+        <SyntaxHighlighter
+          style={a11yDark}
+          language={match[1]}
+          PreTag="div"
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      ) : (
+        <code className={className} {...props}>
+          {children}
+        </code>
+      )
+    }
   }
 
   return (
@@ -78,7 +95,7 @@ export default function Home() {
             cursor: 'pointer'
           })}
           onClick={handleSubmit}
-        // disabled={ }
+        // disabled={loading}
         >
           {'Submit'}
         </button>
