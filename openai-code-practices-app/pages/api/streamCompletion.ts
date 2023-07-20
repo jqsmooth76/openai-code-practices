@@ -3,6 +3,7 @@ import { OpenAI } from "openai-streams";
 
 import practices from '../../sourceFiles/practices/0001-React-Component-Development.md'
 import { NextRequest } from "next/server";
+import Script from "next/script";
 
 
 export default async function handler(req: NextRequest) {

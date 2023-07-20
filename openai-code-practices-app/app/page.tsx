@@ -13,8 +13,6 @@ export default function Home() {
   const [data, setInput] = useState({ input: "" });
   const [codeSnippet, setCodeSnippet] = useState("")
 
-
-  const [index, setIndex] = useState(0)
   const [result, setResult] = useState<string>('');
 
   const { buffer, done, error, refresh, cancel } = useTextBuffer({
@@ -36,16 +34,11 @@ export default function Home() {
       // whenever a new chunk arrives in buffer, append it to the result
       setResult(result => result + buffer[buffer.length - 1]);
     }
-  }, [buffer]); // dependency array includes buffer
+  }, [buffer]);
 
-  useEffect(() => {
-    if (index >= buffer.length) {
-      setIndex(buffer.length)
-    }
-  }, [buffer.length, index]
-  )
 
-  const handleSubmit = (e) => {
+  const handleSubmit = () => {
+    setCodeSnippet("")
     setInput({ input: '' })
     setInput({ input: codeSnippet })
     refresh()
