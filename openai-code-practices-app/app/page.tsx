@@ -1,10 +1,8 @@
 'use client'
-import axios from 'axios';
-import { useState, ChangeEvent } from 'react'
-import { useMutation } from 'react-query'
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import React, { useState, useEffect, ChangeEvent } from 'react'
+import ReactMarkdown from 'react-markdown'; import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useTextBuffer } from "nextjs-openai";
 
 
 import { css } from '../styled-system/css';
@@ -12,13 +10,38 @@ import { Container, VStack } from '../styled-system/jsx'
 
 
 export default function Home() {
-  const [input, setInput] = useState<string>('');
+  const [data, setInput] = useState({ input: "" });
+  const [codeSnippet, setCodeSnippet] = useState("")
 
-  const mutation = useMutation((input) => axios.post('/api/completion', { input }));
+  const [result, setResult] = useState<string>('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    mutation.mutate(input as any);
+  const { buffer, done, error, refresh, cancel } = useTextBuffer({
+    url: "/api/streamCompletion",
+    throttle: 100,
+    options: {
+      method: "POST",
+    },
+    data,
+  });
+
+
+  const text = buffer.join("")
+  const empty = buffer.length === 0 || text.trim() === ""
+
+
+  useEffect(() => {
+    if (buffer.length > 0) {
+      // whenever a new chunk arrives in buffer, append it to the result
+      setResult(result => result + buffer[buffer.length - 1]);
+    }
+  }, [buffer]);
+
+
+  const handleSubmit = () => {
+    setCodeSnippet("")
+    setInput({ input: '' })
+    setInput({ input: codeSnippet })
+    refresh()
   };
 
   const renderers = {
@@ -40,8 +63,8 @@ export default function Home() {
             borderRadius: 'md',
             borderColor: 'gray.300'
           })}
-          value={input}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
+          value={codeSnippet}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setCodeSnippet(e.target.value)}
           placeholder="Type here..."
         />
         <button
@@ -55,22 +78,25 @@ export default function Home() {
             cursor: 'pointer'
           })}
           onClick={handleSubmit}
-          disabled={mutation.isLoading}
+        // disabled={ }
         >
-          {mutation.isLoading ? 'Loading...' : 'Submit'}
+          {'Submit'}
         </button>
-        {mutation.isError && (
-          <div className={css({ color: 'red.500' })}>
-            An error occurred: {(mutation.error as Error).message}
-          </div>
-        )}
-        {mutation.isSuccess && (
+        <button className={css({
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          fontSize: '1rem',
+          borderRadius: 'md',
+          backgroundColor: 'blue.500',
+          color: 'white',
+          cursor: 'pointer'
+        })} onClick={cancel}>Cancel</button>
 
-          <ReactMarkdown components={renderers}>
-            {mutation.data.data.data}
-          </ReactMarkdown>
+        <ReactMarkdown components={renderers}>
+          {empty ? '' : result}
+        </ReactMarkdown>
 
-        )}
+
       </VStack>
     </Container>
   )
