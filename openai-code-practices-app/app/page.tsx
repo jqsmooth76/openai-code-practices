@@ -1,6 +1,7 @@
 'use client'
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, useEffect, ChangeEvent, useRef, ReactFragment, ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown';
+
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
@@ -15,6 +16,8 @@ import { Container, VStack } from '../styled-system/jsx'
 export default function Home() {
   const [data, setInput] = useState({ input: "" });
   const [codeSnippet, setCodeSnippet] = useState("")
+  const bottomEl = useRef<HTMLDivElement>(null);
+
 
   const [result, setResult] = useState<string>('');
 
@@ -39,11 +42,20 @@ export default function Home() {
     }
   }, [buffer]);
 
+  useEffect(() => {
+    bottomEl?.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [buffer.length])
+
 
   const handleSubmit = () => {
     setInput({ input: codeSnippet })
     refresh()
   };
+
+  const regenerate = () => {
+    setResult('')
+    refresh()
+  }
 
   const renderers = {
     code: ({ node, inline, className = "blog-code", children, ...props }: any) => {
@@ -69,7 +81,7 @@ export default function Home() {
     <Container>
       <VStack>
 
-        <div className={css({ fontSize: "4xl", fontWeight: 'bold' })}>Hello 🐼!</div>
+        <div className={css({ fontSize: "4xl", fontWeight: 'bold' })}>Paste your code here to get a steer on best practices 😎</div>
         <textarea
           className={css({
             width: '50em',
@@ -99,6 +111,7 @@ export default function Home() {
         >
           {'Submit'}
         </button>
+
         <button className={css({
           marginTop: '1rem',
           padding: '0.5rem 1rem',
@@ -107,14 +120,25 @@ export default function Home() {
           backgroundColor: 'blue.500',
           color: 'white',
           cursor: 'pointer'
-        })} onClick={cancel}>Cancel</button>
+        })} onClick={regenerate}>Refresh</button>
 
         <ReactMarkdown components={renderers}>
           {empty ? '' : result}
         </ReactMarkdown>
 
+        <button className={css({
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          fontSize: '1rem',
+          borderRadius: 'md',
+          backgroundColor: 'black',
+          color: 'white',
+          cursor: 'pointer'
+        })} onClick={cancel}>CANCEL</button>
+
+        <div ref={bottomEl} className={css({ marginTop: '2em' })} />
 
       </VStack>
-    </Container>
+    </Container >
   )
 }
