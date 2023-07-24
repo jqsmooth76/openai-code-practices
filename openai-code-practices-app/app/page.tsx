@@ -16,6 +16,7 @@ import { Container, VStack } from '../styled-system/jsx'
 export default function Home() {
   const [data, setInput] = useState({ input: "" });
   const [codeSnippet, setCodeSnippet] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
   const bottomEl = useRef<HTMLDivElement>(null);
 
 
@@ -33,14 +34,15 @@ export default function Home() {
 
   const text = buffer.join("")
   const empty = buffer.length === 0 || text.trim() === ""
-  const loading = buffer.length > 0 && !done && !error
 
   useEffect(() => {
     if (buffer.length > 0) {
-      // whenever a new chunk arrives in buffer, append it to the result
       setResult(result => result + buffer[buffer.length - 1]);
     }
-  }, [buffer]);
+    if (buffer.length > 0 && !done) {
+      setIsGenerating(true)
+    }
+  }, [buffer, done]);
 
   useEffect(() => {
     bottomEl?.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,13 +50,21 @@ export default function Home() {
 
 
   const handleSubmit = () => {
-    setInput({ input: codeSnippet })
-    refresh()
-  };
-
-  const regenerate = () => {
     setResult('')
     refresh()
+    setInput({ input: codeSnippet })
+    setIsGenerating(true)
+  };
+
+  const handleRefresh = () => {
+    setResult('')
+    refresh()
+    setIsGenerating(true)
+  }
+
+  const handleCancel = () => {
+    setIsGenerating(false)
+    cancel()
   }
 
   const renderers = {
@@ -107,7 +117,7 @@ export default function Home() {
             cursor: 'pointer'
           })}
           onClick={handleSubmit}
-        // disabled={loading}
+          disabled={isGenerating}
         >
           {'Submit'}
         </button>
@@ -120,21 +130,22 @@ export default function Home() {
           backgroundColor: 'blue.500',
           color: 'white',
           cursor: 'pointer'
-        })} onClick={regenerate}>Refresh</button>
+        })} onClick={handleRefresh}>Regenerate 🔃</button>
 
         <ReactMarkdown components={renderers}>
           {empty ? '' : result}
         </ReactMarkdown>
 
-        <button className={css({
-          marginTop: '1rem',
-          padding: '0.5rem 1rem',
-          fontSize: '1rem',
-          borderRadius: 'md',
-          backgroundColor: 'black',
-          color: 'white',
-          cursor: 'pointer'
-        })} onClick={cancel}>CANCEL</button>
+        {isGenerating &&
+          <button className={css({
+            marginTop: '1rem',
+            padding: '0.5rem 1rem',
+            fontSize: '1rem',
+            borderRadius: 'md',
+            backgroundColor: 'black',
+            color: 'white',
+            cursor: 'pointer'
+          })} onClick={handleCancel}>Stop Generating</button>}
 
         <div ref={bottomEl} className={css({ marginTop: '2em' })} />
 
