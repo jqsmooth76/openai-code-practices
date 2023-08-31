@@ -13,6 +13,7 @@ export default async function handler(req: NextRequest) {
     return new Response(null, { status: 400, statusText: "Did not include `input ` parameter" });
   }
 
+
   const stream = await OpenAI(
     "chat",
     {

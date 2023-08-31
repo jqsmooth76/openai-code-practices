@@ -4,7 +4,8 @@ const nextConfig = {
     config.module.rules.push({
       test: /\.md$/,
       use: 'raw-loader',
-    })
+    });
+    config.externals = [...config.externals, 'hnswlib-node'];
     return config
   }
 }
